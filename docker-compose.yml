@@ -1,0 +1,42 @@
+version: '2'
+
+services:
+   mailman3:
+     image: newtype87/mailman3-docker
+     volumes:
+       - mailman3-data:/data
+     restart: always
+     environment:
+         MAILMAN_REST_API_USER:  ${MAILMAN_REST_API_USER}
+         MAILMAN_REST_API_PASS: ${MAILMAN_REST_API_PASS}
+         MAILMAN_SMTP_HOST: ${MAILMAN_SMTP_HOST}
+         MAILMAN_SITE_OWNER: ${MAILMAN_SITE_OWNER}
+   postorius:
+     depends_on:
+       - mailman3
+     image: newtype87/postorius-docker
+     restart: always
+     environment:
+       MAILMAN_REST_API_URL: http://mailman3:8001
+       MAILMAN_REST_API_USER: ${MAILMAN_REST_API_USER}
+       MAILMAN_REST_API_PASS: ${MAILMAN_REST_API_PASS}
+       POSTORIUS_ADMIN_PASS: ${POSTORIUS_ADMIN_PASS}
+       MAILMAN_SITE_OWNER: ${MAILMAN_SITE_OWNER}
+       POSTORIUS_SMTP_USER: ${POSTORIUS_SMTP_USER}
+       POSTORIUS_SMTP_PASS: ${POSTORIUS_SMTP_PASS}
+       POSTORIUS_SMTP_HOST: ${POSTORIUS_SMTP_HOST}
+       POSTORIUS_SMTP_PORT: ${POSTORIUS_SMTP_PORT}
+       DEFAULT_FROM_EMAIL: ${POSTORIUS_SMTP_FROM}
+       POSTORIUS_SMTP_USE_TLS: ${POSTORIUS_SMTP_USE_TLS}
+       POSTORIUS_SMTP_USE_SSL: ${POSTORIUS_SMTP_USE_SSL}
+
+     volumes:
+      - postorius-data:/data
+     links:
+      - mailman3
+     ports:
+      - "8000:8000"
+
+volumes:
+    postorius-data:
+    mailman3-data:
